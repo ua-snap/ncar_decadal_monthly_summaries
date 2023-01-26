@@ -27,7 +27,7 @@ def create_decadal_averages(input_dir, output_dir, dry_run):
         logging.basicConfig(filename=f"{log_tag}.log", level=logging.INFO)
         logging.info("Input directory: %s", input_dir)
         logging.info("Output directory: %s", output_dir)
-        logging.info("Input files: %s", paths)
+        logging.info("Input files: %s", [x.name for x in paths])
 
         try:
             with open("wrf_profile.pickle", "rb") as handle:

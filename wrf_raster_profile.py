@@ -16,7 +16,7 @@ def create_wrf_raster_profile(sample_netcdf):
 
     # Grid parameters
     dx, dy = 12000, 12000
-    with xr.open_dataset(paths[0]) as ds:
+    with xr.open_dataset(sample_netcdf) as ds:
         ny, nx = ds.longitude.shape
         width = ds.x.shape[0]
         height = ds.y.shape[0]

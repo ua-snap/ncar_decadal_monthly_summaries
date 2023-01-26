@@ -17,18 +17,17 @@ def create_decadal_averages(input_dir, output_dir, dry_run):
     else:
         src_type = "vic_hydro"
 
-    log_tag = input_dir.split("/")[-1] + f"_{src_type}"
-    logging.basicConfig(filename=f"{log_tag}.log", level=logging.INFO)
-    logging.info("Input directory: %s", input_dir)
-    logging.info("Output directory: %s", output_dir)
-
     for file_set in variable_di[src_type].keys():
 
         paths = [Path(x) for x in glob.glob(f"{input_dir}*") if file_set in x]
-
-        logging.info("Input files: %s", paths)
         scenario = paths[0].parent.name
         model = paths[0].parent.parent.name
+
+        log_tag = f"{model}_{scenario}_{src_type}_{file_set}"
+        logging.basicConfig(filename=f"{log_tag}.log", level=logging.INFO)
+        logging.info("Input directory: %s", input_dir)
+        logging.info("Output directory: %s", output_dir)
+        logging.info("Input files: %s", paths)
 
         try:
             with open("wrf_profile.pickle", "rb") as handle:

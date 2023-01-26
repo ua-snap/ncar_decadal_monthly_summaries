@@ -1,5 +1,6 @@
 import rasterio as rio
 import numpy as np
+import xarray as xr
 import pickle
 from wrf import PolarStereographic
 from pyproj import Proj, Transformer, CRS

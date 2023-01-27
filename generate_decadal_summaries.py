@@ -50,9 +50,12 @@ def create_decadal_averages(input_dir, output_dir, dry_run):
                 ds_decadal = xr.concat(
                     [data_di[j] for j in range(start_year, end_year + 1)], dim="time"
                 )
+                logging.info(f"Processing data between {start_year} and {end_year}...")
 
                 for file_type in variable_di[src_type].keys():
+                    logging.info(f"Processing data for {file_type}...")
                     for climvar in variable_di[src_type][file_type].keys():
+                        logging.info(f"Processing data for variable {climvar}...")
                         summary_func = variable_di[src_type][file_type][climvar]
                         out = (
                             ds_decadal[climvar]

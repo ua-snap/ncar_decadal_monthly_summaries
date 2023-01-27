@@ -17,13 +17,13 @@ def create_decadal_averages(input_dir, output_dir, dry_run):
     else:
         src_type = "vic_hydro"
 
-    for file_set in variable_di[src_type].keys():
+    for met_or_wf_or_ws in variable_di[src_type].keys():
 
-        paths = [Path(x) for x in glob.glob(f"{input_dir}*") if file_set in x]
+        paths = [Path(x) for x in glob.glob(f"{input_dir}*") if met_or_wf_or_ws in x]
         scenario = paths[0].parent.name
         model = paths[0].parent.parent.name
 
-        log_tag = f"{model}_{scenario}_{src_type}_{file_set}"
+        log_tag = f"{model}_{scenario}_{src_type}_{met_or_wf_or_ws}"
         logging.basicConfig(filename=f"{log_tag}.log", level=logging.INFO)
         logging.info("Input directory: %s", input_dir)
         logging.info("Output directory: %s", output_dir)
@@ -52,39 +52,38 @@ def create_decadal_averages(input_dir, output_dir, dry_run):
                 )
                 logging.info(f"Processing data between {start_year} and {end_year}...")
 
-                for file_type in variable_di[src_type].keys():
-                    logging.info(f"Processing data for {file_type}...")
-                    for climvar in variable_di[src_type][file_type].keys():
-                        logging.info(f"Processing data for variable {climvar}...")
-                        summary_func = variable_di[src_type][file_type][climvar]
-                        out = (
-                            ds_decadal[climvar]
-                            .resample(time="1M")
-                            .reduce(summary_func)
-                            .groupby("time.month")
-                            .reduce(np.mean)
-                        )
-                        dec_mean_monthly_summary = out.compute()
+                # we may not need the loop below
+                # for file_type in variable_di[src_type].keys():
+                logging.info(f"Processing data for {met_or_wf_or_ws}...")
+                for climvar in variable_di[src_type][met_or_wf_or_ws].keys():
+                    logging.info(f"Processing data for variable {climvar}...")
+                    summary_func = variable_di[src_type][met_or_wf_or_ws][climvar]
+                    out = (
+                        ds_decadal[climvar]
+                        .resample(time="1M")
+                        .reduce(summary_func)
+                        .groupby("time.month")
+                        .reduce(np.mean)
+                    )
+                    dec_mean_monthly_summary = out.compute()
 
-                        for mo in months:
-                            # we lose the orientation from xr and it flips upside down
-                            data = np.flipud(
-                                dec_mean_monthly_summary.sel(month=mo).data
-                            )
-                            # set the output filename
-                            units = unit_di[climvar]
-                            mo_summary_func = summary_di[climvar]
-                            out_filename = f"{climvar}_{units}_{model}_{scenario}_{mo_names[mo]}_{mo_summary_func}_{start_year}-{end_year}.tif"
-                            logging.info("Output file: %s", out_filename)
+                    for mo in months:
+                        # we lose the orientation from xr and it flips upside down
+                        data = np.flipud(dec_mean_monthly_summary.sel(month=mo).data)
+                        # set the output filename
+                        units = unit_di[climvar]
+                        mo_summary_func = summary_di[climvar]
+                        out_filename = f"{climvar}_{units}_{model}_{scenario}_{mo_names[mo]}_{mo_summary_func}_{start_year}-{end_year}.tif"
+                        logging.info("Output file: %s", out_filename)
 
-                            # TODO Can we 3338 these right here, before writing them to disk?
+                        # TODO Can we 3338 these right here, before writing them to disk?
 
-                            with rio.open(
-                                Path(output_dir) / out_filename, "w", **wrf_profile
-                            ) as dst:
-                                dst.write(data, 1)
-            for k in data_di:
-                data_di[k].close()
+                        with rio.open(
+                            Path(output_dir) / out_filename, "w", **wrf_profile
+                        ) as dst:
+                            dst.write(data, 1)
+        for k in data_di:
+            data_di[k].close()
 
 
 if __name__ == "__main__":

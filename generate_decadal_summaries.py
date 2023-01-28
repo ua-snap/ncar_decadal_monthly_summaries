@@ -51,9 +51,6 @@ def create_decadal_averages(input_dir, output_dir, dry_run):
                     [data_di[j] for j in range(start_year, end_year + 1)], dim="time"
                 )
                 logging.info(f"Processing data between {start_year} and {end_year}...")
-
-                # we may not need the loop below
-                # for file_type in variable_di[src_type].keys():
                 logging.info(f"Processing data for {met_or_wf_or_ws}...")
                 for climvar in variable_di[src_type][met_or_wf_or_ws].keys():
                     logging.info(f"Processing data for variable {climvar}...")
@@ -73,7 +70,7 @@ def create_decadal_averages(input_dir, output_dir, dry_run):
                         # set the output filename
                         units = unit_di[climvar]
                         mo_summary_func = summary_di[climvar]
-                        out_filename = f"{climvar}_{units}_{model}_{scenario}_{mo_names[mo]}_{mo_summary_func}_{start_year}-{end_year}.tif"
+                        out_filename = f"{climvar.lower()}_{units}_{model}_{scenario}_{mo_names[mo]}_{mo_summary_func}_{start_year}-{end_year}_mean.tif"
                         logging.info("Output file: %s", out_filename)
 
                         # TODO Can we 3338 these right here, before writing them to disk?

@@ -73,29 +73,17 @@ def create_decadal_averages(input_dir, output_dir, dry_run):
                         out_filename = f"{climvar.lower()}_{units}_{model}_{scenario}_{mo_names[mo]}_{mo_summary_func}_{start_year}-{end_year}_mean.tif"
                         logging.info("Output file: %s", out_filename)
                         # Reproject data to EPSG:3338
-                        reprojected_data, _ = rio.warp.reproject(
-                            data,
-                            src_crs=wrf_profile["crs"],
-                            dst_crs="EPSG:3338",
-                            resampling=rio.warp.Resampling.nearest,
-                        )
-
-                        # Update the CRS in the profile
-                        ak_albers_profile = wrf_profile.copy()
-                        ak_albers_profile.update(crs="EPSG:3338")
-                        # Update the affine transform in the profile
-                        ak_albers_profile.update(
-                            transform=rasterio.warp.calculate_default_transform(
-                                src_crs=wrf_profile["crs"],
-                                dst_crs="EPSG:3338",
-                                width=reprojected_data.shape[2],
-                                height=reprojected_data.shape[1],
-                                left=0,
-                                bottom=0,
-                                right=1,
-                                top=1,
-                            )
-                        )
+                        with rio.io.MemoryFile() as memfile:
+                            with memfile.open(**wrf_profile) as mem_src:
+                                mem_src.write(data, 1)
+                                reprojected_data, aff = rio.warp.reproject(
+                                    mem_src.read(1),
+                                    mem_src.transform,
+                                    dst_crs="EPSG:3338",
+                                )
+                                ak_albers_profile = wrf_profile.copy()
+                                ak_albers_profile.update(crs="EPSG:3338")
+                                ak_albers_profile.update(transform=aff)
                         with rio.open(
                             Path(output_dir) / out_filename, "w", **ak_albers_profile
                         ) as dst:
@@ -105,6 +93,7 @@ def create_decadal_averages(input_dir, output_dir, dry_run):
                         #     Path(output_dir) / out_filename, "w", **wrf_profile
                         # ) as dst:
                         #     dst.write(data, 1)
+                        # end previously working code
             for k in data_di:
                 data_di[k].close()
 

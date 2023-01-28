@@ -79,6 +79,7 @@ def create_decadal_averages(input_dir, output_dir, dry_run):
                                 reprojected_data, aff = rio.warp.reproject(
                                     mem_src.read(1),
                                     mem_src.transform,
+                                    src_crs=wrf_profile["crs"],
                                     dst_crs="EPSG:3338",
                                 )
                                 ak_albers_profile = wrf_profile.copy()

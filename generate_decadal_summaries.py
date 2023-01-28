@@ -73,12 +73,27 @@ def create_decadal_averages(input_dir, output_dir, dry_run):
                         out_filename = f"{climvar.lower()}_{units}_{model}_{scenario}_{mo_names[mo]}_{mo_summary_func}_{start_year}-{end_year}_mean.tif"
                         logging.info("Output file: %s", out_filename)
 
-                        # TODO Can we 3338 these right here, before writing them to disk?
-
+                        # reproject to 3338
+                        src_crs = wrf_profile["crs"]
+                        dst_crs = "EPSG:3338"
                         with rio.open(
                             Path(output_dir) / out_filename, "w", **wrf_profile
                         ) as dst:
+                            rio.warp.reproject(
+                                source=data,
+                                src_crs=src_crs,
+                                dst_crs=dst_crs,
+                                dst_transform=dst.transform,
+                                dst_width=dst.width,
+                                dst_height=dst.height,
+                                # resampling=Resampling.nearest
+                            )
                             dst.write(data, 1)
+
+                        # with rio.open(
+                        #     Path(output_dir) / out_filename, "w", **wrf_profile
+                        # ) as dst:
+                        #     dst.write(data, 1)
         for k in data_di:
             data_di[k].close()
 

@@ -94,8 +94,8 @@ def create_decadal_averages(input_dir, output_dir, dry_run):
                         #     Path(output_dir) / out_filename, "w", **wrf_profile
                         # ) as dst:
                         #     dst.write(data, 1)
-        for k in data_di:
-            data_di[k].close()
+            for k in data_di:
+                data_di[k].close()
 
 
 if __name__ == "__main__":

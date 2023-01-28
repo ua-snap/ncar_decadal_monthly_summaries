@@ -67,29 +67,40 @@ def create_decadal_averages(input_dir, output_dir, dry_run):
                     for mo in months:
                         # we lose the orientation from xr and it flips upside down
                         data = np.flipud(dec_mean_monthly_summary.sel(month=mo).data)
-                        # set the output filename
+                        # set output filename
                         units = unit_di[climvar]
                         mo_summary_func = summary_di[climvar]
                         out_filename = f"{climvar.lower()}_{units}_{model}_{scenario}_{mo_names[mo]}_{mo_summary_func}_{start_year}-{end_year}_mean.tif"
                         logging.info("Output file: %s", out_filename)
+                        # Reproject data to EPSG:3338
+                        reprojected_data, _ = rio.warp.reproject(
+                            data,
+                            src_crs=wrf_profile["crs"],
+                            dst_crs="EPSG:3338",
+                            resampling=rio.warp.Resampling.nearest,
+                        )
 
-                        # reproject to 3338
-                        src_crs = wrf_profile["crs"]
-                        dst_crs = "EPSG:3338"
-                        with rio.open(
-                            Path(output_dir) / out_filename, "w", **wrf_profile
-                        ) as dst:
-                            rio.warp.reproject(
-                                source=data,
-                                src_crs=src_crs,
-                                dst_crs=dst_crs,
-                                dst_transform=dst.transform,
-                                dst_width=dst.width,
-                                dst_height=dst.height,
-                                # resampling=Resampling.nearest
+                        # Update the CRS in the profile
+                        ak_albers_profile = wrf_profile.copy()
+                        ak_albers_profile.update(crs="EPSG:3338")
+                        # Update the affine transform in the profile
+                        ak_albers_profile.update(
+                            transform=rasterio.warp.calculate_default_transform(
+                                src_crs=wrf_profile["crs"],
+                                dst_crs="EPSG:3338",
+                                width=reprojected_data.shape[2],
+                                height=reprojected_data.shape[1],
+                                left=0,
+                                bottom=0,
+                                right=1,
+                                top=1,
                             )
-                            dst.write(data, 1)
-
+                        )
+                        with rio.open(
+                            Path(output_dir) / out_filename, "w", **ak_albers_profile
+                        ) as dst:
+                            dst.write(reprojected_data, 1)
+                        # previously working code
                         # with rio.open(
                         #     Path(output_dir) / out_filename, "w", **wrf_profile
                         # ) as dst:

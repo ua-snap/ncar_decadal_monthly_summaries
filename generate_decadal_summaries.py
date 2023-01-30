@@ -8,6 +8,7 @@ import logging
 from pathlib import Path
 from config import mo_names, months, unit_di, summary_di, variable_di
 from wrf_raster_profile import create_wrf_raster_profile
+from reproject_to_3338 import reproject_raster_to_3338
 
 
 def create_decadal_averages(input_dir, output_dir, dry_run):
@@ -73,28 +74,12 @@ def create_decadal_averages(input_dir, output_dir, dry_run):
                         out_filename = f"{climvar.lower()}_{units}_{model}_{scenario}_{mo_names[mo]}_{mo_summary_func}_{start_year}-{end_year}_mean.tif"
                         logging.info("Output file: %s", out_filename)
                         # Reproject data to EPSG:3338
-                        with rio.io.MemoryFile() as memfile:
-                            with memfile.open(**wrf_profile) as mem_src:
-                                mem_src.write(data, 1)
-                                reprojected_data, aff = rio.warp.reproject(
-                                    mem_src.read(1),
-                                    mem_src.transform,
-                                    src_crs=wrf_profile["crs"],
-                                    dst_crs="EPSG:3338",
-                                )
-                                ak_albers_profile = wrf_profile.copy()
-                                ak_albers_profile.update(crs="EPSG:3338")
-                                ak_albers_profile.update(transform=aff)
                         with rio.open(
-                            Path(output_dir) / out_filename, "w", **ak_albers_profile
+                            Path(output_dir) / out_filename, "w", **wrf_profile
                         ) as dst:
-                            dst.write(reprojected_data, 1)
-                        # previously working code
-                        # with rio.open(
-                        #     Path(output_dir) / out_filename, "w", **wrf_profile
-                        # ) as dst:
-                        #     dst.write(data, 1)
-                        # end previously working code
+
+                            ak_albers = reproject_raster_to_3338
+                            ak_albers.write(data, 1)
             for k in data_di:
                 data_di[k].close()
 

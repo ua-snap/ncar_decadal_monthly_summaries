@@ -8,7 +8,6 @@ import logging
 from pathlib import Path
 from config import mo_names, months, unit_di, summary_di, variable_di
 from wrf_raster_profile import create_wrf_raster_profile
-from reproject_to_3338 import reproject_raster_to_3338
 
 
 def create_decadal_averages(input_dir, output_dir, dry_run):
@@ -73,13 +72,26 @@ def create_decadal_averages(input_dir, output_dir, dry_run):
                         mo_summary_func = summary_di[climvar]
                         out_filename = f"{climvar.lower()}_{units}_{model}_{scenario}_{mo_names[mo]}_{mo_summary_func}_{start_year}-{end_year}_mean.tif"
                         logging.info("Output file: %s", out_filename)
-                        # Reproject data to EPSG:3338
-                        with rio.open(
-                            Path(output_dir) / out_filename, "w", **wrf_profile
-                        ) as dst:
+                        # reproject data to EPSG:3338
+                        dst_crs = rio.crs.CRS.from_epsg(3338)
+                        reprojected_data, transform = rasterio.warp.reproject(
+                            data,
+                            src_transform=wrf_profile["transform"],
+                            src_crs=wrf_profile["crs"],
+                            dst_crs=dst_crs,
+                            dst_transform=rio.warp.Resampling.nearest,
+                            height=data.shape[0],
+                            width=data.shape[1],
+                        )
+                        ak_albers_profile = wrf_profile.copy()
+                        ak_albers_profile["crs"] = dst_crs
+                        ak_albers_profile["transform"] = transform
 
-                            ak_albers = reproject_raster_to_3338
-                            ak_albers.write(data, 1)
+                        # write to disk
+                        with rio.open(
+                            Path(output_dir) / out_filename, "w", **ak_albers_profile
+                        ) as dst:
+                            dst.write(reprojected_data, 1)
             for k in data_di:
                 data_di[k].close()
 

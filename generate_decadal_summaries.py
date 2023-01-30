@@ -74,7 +74,7 @@ def create_decadal_averages(input_dir, output_dir, dry_run):
                         logging.info("Output file: %s", out_filename)
                         # reproject data to EPSG:3338
                         dst_crs = rio.crs.CRS.from_epsg(3338)
-                        reprojected_data, transform = rasterio.warp.reproject(
+                        reprojected_data, transform = rio.warp.reproject(
                             data,
                             src_transform=wrf_profile["transform"],
                             src_crs=wrf_profile["crs"],

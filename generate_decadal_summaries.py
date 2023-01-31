@@ -73,22 +73,21 @@ def create_decadal_averages(input_dir, output_dir, dry_run):
                         out_filename = f"{climvar.lower()}_{units}_{model}_{scenario}_{mo_names[mo]}_{mo_summary_func}_{start_year}-{end_year}_mean.tif"
                         logging.info("Output file: %s", out_filename)
                         # reproject data to EPSG:3338
-                        out_crs = rio.crs.CRS.from_epsg(3338)
+                        out_crs = rio.crs.CRS.from_epsg(3338).to_proj4()
 
                         (
                             out_transform,
                             out_width,
                             out_height,
                         ) = rio.warp.calculate_default_transform(
-                            wrf_profile["crs"],
+                            wrf_profile["crs"].to_proj4(),
                             out_crs,
                             data.shape[1],
                             data.shape[0],
                             left=-1794000.000,
                             bottom=-4046424.205,
                             right=1794000.000,
-                            top=-1538424.205
-                            # *wrf_profile["transform"],
+                            top=-1538424.205,
                         )
 
                         reprojected_data, _ = rio.warp.reproject(
@@ -97,8 +96,8 @@ def create_decadal_averages(input_dir, output_dir, dry_run):
                             src_crs=wrf_profile["crs"],
                             dst_crs=out_crs,
                             dst_transform=out_transform,
-                            # height=out_height,
-                            # width=out_width,
+                            height=out_height,
+                            width=out_width,
                         )
                         ak_albers_profile = wrf_profile.copy()
                         ak_albers_profile["crs"] = out_crs

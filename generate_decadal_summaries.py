@@ -89,8 +89,12 @@ def create_decadal_averages(input_dir, output_dir, dry_run):
                             right=1794000.000,
                             top=-1538424.205,
                         )
-                        dst_arr = np.empty((out_height, out_width), dtype=data.dtype)
-
+                        # dst_arr = np.empty((out_height, out_width), dtype=data.dtype)
+                        dst_arr = np.full(
+                            (out_height, out_width),
+                            wrf_profile["nodata"],
+                            dtype=data.dtype,
+                        )
                         reprojected_data, _ = rio.warp.reproject(
                             data,
                             destination=dst_arr,

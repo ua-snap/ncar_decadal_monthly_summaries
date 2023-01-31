@@ -74,18 +74,33 @@ def create_decadal_averages(input_dir, output_dir, dry_run):
                         logging.info("Output file: %s", out_filename)
                         # reproject data to EPSG:3338
                         dst_crs = rio.crs.CRS.from_epsg(3338)
-                        reprojected_data, transform = rio.warp.reproject(
+
+                        (
+                            dst_transform,
+                            dst_width,
+                            dst_height,
+                        ) = rio.warp.calculate_default_transform(
+                            wrf_profile["crs"],
+                            dst_crs,
+                            data.shape[1],
+                            data.shape[0],
+                            *wrf_profile["transform"],
+                        )
+
+                        reprojected_data, _ = rio.warp.reproject(
                             data,
                             src_transform=wrf_profile["transform"],
                             src_crs=wrf_profile["crs"],
                             dst_crs=dst_crs,
-                            dst_transform=rio.warp.Resampling.nearest,
-                            height=data.shape[0],
-                            width=data.shape[1],
+                            dst_transform=dst_transform,
+                            height=dst_height,
+                            width=dst_width,
                         )
                         ak_albers_profile = wrf_profile.copy()
                         ak_albers_profile["crs"] = dst_crs
-                        ak_albers_profile["transform"] = transform
+                        ak_albers_profile["transform"] = dst_transform
+                        ak_albers_profile["height"] = dst_height
+                        ak_albers_profile["width"] = dst_width
 
                         # write to disk
                         with rio.open(

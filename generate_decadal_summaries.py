@@ -84,7 +84,7 @@ def create_decadal_averages(input_dir, output_dir, dry_run):
                             out_crs,
                             data.shape[1],
                             data.shape[0],
-                            *wrf_profile["transform"],
+                            # *wrf_profile["transform"],
                         )
 
                         reprojected_data, _ = rio.warp.reproject(

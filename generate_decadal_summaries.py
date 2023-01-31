@@ -69,7 +69,7 @@ def create_decadal_averages(input_dir, output_dir, dry_run):
                         # we lose the orientation from xr and it flips upside down
                         data = np.flipud(dec_mean_monthly_summary.sel(month=mo).data)
                         # round to sensible precision levels
-                        data = round(data, precision_di[climvar])
+                        data = data.round(precision_di[climvar])
                         # set output filename
                         units = unit_di[climvar]
                         mo_summary_func = summary_di[climvar]

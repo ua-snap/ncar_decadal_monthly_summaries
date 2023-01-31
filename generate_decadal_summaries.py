@@ -7,7 +7,7 @@ import pickle
 import logging
 import warnings
 from pathlib import Path
-from config import mo_names, months, unit_di, summary_di, variable_di
+from config import mo_names, months, unit_di, summary_di, variable_di, precision_di
 from wrf_raster_profile import create_wrf_raster_profile
 
 
@@ -68,6 +68,8 @@ def create_decadal_averages(input_dir, output_dir, dry_run):
                     for mo in months:
                         # we lose the orientation from xr and it flips upside down
                         data = np.flipud(dec_mean_monthly_summary.sel(month=mo).data)
+                        # round to sensible precision levels
+                        data = round(data, precision_di[climvar])
                         # set output filename
                         units = unit_di[climvar]
                         mo_summary_func = summary_di[climvar]

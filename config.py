@@ -52,3 +52,18 @@ summary_di = {
     "SM2": "mean",
     "SM3": "mean",
 }
+
+precision_di = {
+    "pcp": 0,
+    "tmax": 1,
+    "tmin": 1,
+    "SNOW_MELT": 0,
+    "EVAP": 0,
+    "GLACIER_MELT": 0,
+    "RUNOFF": 0,
+    "IWE": 0,
+    "SWE": 0,
+    "SM1": 0,
+    "SM2": 0,
+    "SM3": 0,
+}

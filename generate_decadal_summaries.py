@@ -84,6 +84,10 @@ def create_decadal_averages(input_dir, output_dir, dry_run):
                             out_crs,
                             data.shape[1],
                             data.shape[0],
+                            left=-1794000.000,
+                            bottom=-4046424.205,
+                            right=1794000.000,
+                            top=-1538424.205
                             # *wrf_profile["transform"],
                         )
 

@@ -5,6 +5,7 @@ import numpy as np
 import rasterio as rio
 import pickle
 import logging
+import warnings
 from pathlib import Path
 from config import mo_names, months, unit_di, summary_di, variable_di
 from wrf_raster_profile import create_wrf_raster_profile
@@ -89,19 +90,16 @@ def create_decadal_averages(input_dir, output_dir, dry_run):
                             right=1794000.000,
                             top=-1538424.205,
                         )
-                        # dst_arr = np.empty((out_height, out_width), dtype=data.dtype)
-                        dst_arr = np.full(
-                            (out_height, out_width),
-                            wrf_profile["nodata"],
-                            dtype=data.dtype,
-                        )
+                        dst_arr = np.empty((out_height, out_width), dtype=data.dtype)
                         reprojected_data, _ = rio.warp.reproject(
                             data,
                             destination=dst_arr,
                             src_transform=wrf_profile["transform"],
                             src_crs=wrf_profile["crs"],
+                            src_nodata=wrf_profile["nodata"],
                             dst_crs=out_crs,
                             dst_transform=out_transform,
+                            dst_nodata=wrf_profile["nodata"],
                             height=out_height,
                             width=out_width,
                         )
@@ -133,4 +131,10 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
+    # ignore warning - we have to convert the WRF CRS to a string format
+    # it is needed to compute the transform to 3338
+    warnings.filterwarnings(
+        "ignore",
+        message="You will likely lose important projection information when converting to a PROJ string",
+    )
     create_decadal_averages(args.input_dir, args.output_dir, args.dry_run)

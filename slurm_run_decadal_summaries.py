@@ -69,8 +69,8 @@ def create_decadal_averages(input_dir, output_dir, client):
                     .groupby("time.month")
                     .reduce(np.mean)
                 )
-                dec_mean_monthly_summary = out.compute()
-
+                # dec_mean_monthly_summary = out.compute()
+                dec_mean_monthly_summary = client.compute(out)
                 for mo in months:
                     # we lose the orientation from xr and it flips upside down
                     data = np.flipud(dec_mean_monthly_summary.sel(month=mo).data)

@@ -7,11 +7,22 @@ import pickle
 import logging
 import warnings
 from pathlib import Path
-from config import mo_names, months, unit_di, summary_di, variable_di, precision_di
 from wrf_raster_profile import create_wrf_raster_profile
+from config import (
+    mo_names,
+    months,
+    unit_di,
+    summary_di,
+    variable_di,
+    precision_di,
+)
 
 
 def create_decadal_averages(input_dir, output_dir, dry_run):
+    warnings.filterwarnings(
+        "ignore",
+        message="You will likely lose important projection information when converting to a PROJ string",
+    )
 
     if "met" in input_dir:
         src_type = "met"

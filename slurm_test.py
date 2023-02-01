@@ -1,7 +1,7 @@
 import dask
 import dask.distributed
 import numpy as np
-from dask_jobqueue import SlurmCluster
+from dask_jobqueue import SLURMCluster
 from config import (
     target_dirs,
     mo_names,
@@ -16,9 +16,11 @@ def dask_test(target, client):
 
 def main():
     # Set up the Dask cluster with Slurm
-    cluster = SlurmCluster(cores=32, memory="16GB", job_extra=["--partition=main"])
+    cluster = SLURMCluster(
+        cores=32, memory="16GB", job_extra_directives=["--partition=main"]
+    )
     cluster.adapt(minimum_jobs=0, maximum_jobs=10)
-    client = Client(cluster)
+    client = dask.distributed.Client(cluster)
 
     for target in target_dirs:
         dask_test(target, client)

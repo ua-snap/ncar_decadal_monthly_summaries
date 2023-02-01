@@ -133,6 +133,7 @@ def main(output_dir):
     )
     cluster.adapt(minimum_jobs=0, maximum_jobs=10)
     client = dask.distributed.Client(cluster)
+    client.become_default()
 
     for target in target_dirs:
         create_decadal_averages(target, output_dir, client)

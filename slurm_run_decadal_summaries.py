@@ -21,7 +21,10 @@ from config import (
 )
 
 
-def create_decadal_averages(input_dir, output_dir, client):
+def create_decadal_averages(input_dir, output_dir, cluster):
+
+    client = dask.distributed.Client(cluster)
+
     if "met" in input_dir:
         src_type = "met"
     else:
@@ -132,11 +135,9 @@ def main(output_dir):
         cores=32, memory="16GB", job_extra_directives=["--partition=main"]
     )
     cluster.adapt(minimum_jobs=0, maximum_jobs=10)
-    client = dask.distributed.Client(cluster)
-    client.become_default()
 
     for target in target_dirs:
-        create_decadal_averages(target, output_dir, client)
+        create_decadal_averages(target, output_dir, cluster)
 
 
 if __name__ == "__main__":

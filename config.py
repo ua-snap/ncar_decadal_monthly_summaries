@@ -25,8 +25,8 @@ models = [
 
 target_dirs = []
 for src_group in list(product(models, scenarios)):
-    target_dirs.append(f"{met_base}/{src_group[0]}/{src_group[1]}/")
-    target_dirs.append(f"{vic_hydro_base}/{src_group[0]}/{src_group[1]}/")
+    target_dirs.append(f"{met_base}{src_group[0]}/{src_group[1]}/")
+    target_dirs.append(f"{vic_hydro_base}{src_group[0]}/{src_group[1]}/")
 
 
 variable_di = {

@@ -22,7 +22,6 @@ from config import (
 
 
 def create_decadal_averages(input_dir, output_dir, cluster):
-
     client = dask.distributed.Client(cluster)
 
     if "met" in input_dir:
@@ -127,6 +126,7 @@ def create_decadal_averages(input_dir, output_dir, cluster):
                         dst.write(reprojected_data, 1)
         for k in data_di:
             data_di[k].close()
+    client.close()
 
 
 def main(output_dir):
@@ -134,7 +134,7 @@ def main(output_dir):
     cluster = SLURMCluster(
         cores=16,
         processes=2,
-        memory=0,
+        memory="16GB",
         queue="main",
         walltime="00:30:00",
         # interface="enp129s0f0",
@@ -142,9 +142,11 @@ def main(output_dir):
         # account="snap",
         scheduler_options={"dashboard_address": ":43368", "interface": "enp129s0f0"},
     )
-
+    cluster.scale(16)
     for target in target_dirs:
         create_decadal_averages(target, output_dir, cluster)
+    cluster.scale(0)
+    cluster.close()
 
 
 if __name__ == "__main__":

@@ -132,9 +132,16 @@ def create_decadal_averages(input_dir, output_dir, cluster):
 def main(output_dir):
     # Set up the Dask cluster with Slurm
     cluster = SLURMCluster(
-        cores=32, memory="16GB", job_extra_directives=["--partition=main"]
+        cores=16,
+        processes=2,
+        memory=0,
+        queue="main",
+        walltime="00:30:00",
+        # interface="enp129s0f0",
+        # log_directory=f'/atlas_scratch/{os.environ["USER"]}/dask_jobqueue_logs/',
+        # account="snap",
+        scheduler_options={"dashboard_address": ":43368", "interface": "enp129s0f0"},
     )
-    cluster.adapt(minimum_jobs=0, maximum_jobs=10)
 
     for target in target_dirs:
         create_decadal_averages(target, output_dir, cluster)

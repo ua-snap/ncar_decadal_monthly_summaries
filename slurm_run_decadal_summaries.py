@@ -142,7 +142,7 @@ def main(output_dir):
         # account="snap",
         scheduler_options={"dashboard_address": ":43368", "interface": "enp129s0f0"},
     )
-    cluster.scale(16)
+    cluster.scale(10)
     for target in target_dirs:
         create_decadal_averages(target, output_dir, cluster)
     cluster.scale(0)

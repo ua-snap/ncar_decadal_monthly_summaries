@@ -21,6 +21,7 @@ def main():
     )
     cluster.adapt(minimum_jobs=0, maximum_jobs=10)
     client = dask.distributed.Client(cluster)
+    client.become_default()
 
     for target in target_dirs:
         dask_test(target, client)

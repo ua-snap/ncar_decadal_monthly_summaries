@@ -1,8 +1,33 @@
 import calendar
 import numpy as np
+from itertools import product
+
 
 months = list(range(1, 13))  # xr indexes months 1 to 12 after `groupby('time.month')`
 mo_names = [x.lower() for x in calendar.month_abbr]
+
+met_base = "/atlas_scratch/Base_Data/AK_NCAR_12km/met/CCSM4/rcp85/"
+vic_hydro_base = "/atlas_scratch/Base_Data/AK_NCAR_12km/vic_hydro/daily/BCSD/"
+
+scenarios = ["rcp45", "rcp85"]
+models = [
+    "ACCESS1-3",
+    "CanESM2",
+    "CCSM4",
+    "CSIRO-Mk3-6-0",
+    "GFDL-ESM2M",
+    "HadGEM2-ES",
+    "inmcm4",
+    "MIROC5",
+    "MPI-ESM-MR",
+    "MRI-CGCM3",
+]
+
+target_dirs = []
+for src_group in list(product(models, scenarios)):
+    target_dirs.append(f"{met_base}/{src_group[0]}/{src_group[1]}/")
+    target_dirs.append(f"{vic_hydro_base}/{src_group[0]}/{src_group[1]}/")
+
 
 variable_di = {
     "met": {"met": {"pcp": np.sum, "tmax": np.mean, "tmin": np.mean}},

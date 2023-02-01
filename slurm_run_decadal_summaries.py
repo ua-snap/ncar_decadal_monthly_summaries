@@ -8,8 +8,6 @@ import logging
 import warnings
 from pathlib import Path
 from wrf_raster_profile import create_wrf_raster_profile
-
-# import dask
 import dask.distributed
 from dask_jobqueue import SLURMCluster
 from config import (
@@ -24,11 +22,6 @@ from config import (
 
 
 def create_decadal_averages(input_dir, output_dir, client):
-    warnings.filterwarnings(
-        "ignore",
-        message="You will likely lose important projection information when converting to a PROJ string",
-    )
-
     if "met" in input_dir:
         src_type = "met"
     else:

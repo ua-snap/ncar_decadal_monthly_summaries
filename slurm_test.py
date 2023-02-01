@@ -3,8 +3,8 @@ import numpy as np
 from dask_jobqueue import SLURMCluster
 
 
-def dask_test(target, client):
-    print(target)
+def dask_test(client):
+
     x = np.zeros(1000) * 3.14
     print(np.max(x))
 
@@ -23,7 +23,8 @@ def main():
         scheduler_options={"dashboard_address": ":43368", "interface": "enp129s0f0"},
     )
     cluster.scale(10)
-    # for target in target_dirs:
+    client = dask.distributed.Client(cluster)
+    dask_test(client)
     #     create_decadal_averages(target, output_dir, cluster)
     cluster.scale(0)
     cluster.close()

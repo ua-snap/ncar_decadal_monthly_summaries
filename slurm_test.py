@@ -20,7 +20,7 @@ def main():
         # interface="enp129s0f0",
         log_directory="/atlas_scratch/cparr4/dask_jobqueue_logs/",
         account="snap",
-        scheduler_options={"dashboard_address": ":43368", "interface": "enp129s0f0"},
+        # scheduler_options={"dashboard_address": ":43368", "interface": "enp129s0f0"},
     )
     cluster.scale(10)
     client = dask.distributed.Client(cluster)

@@ -144,10 +144,4 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    # ignore warning - we have to convert the WRF CRS to a string format
-    # it is needed to compute the transform to 3338
-    warnings.filterwarnings(
-        "ignore",
-        message="You will likely lose important projection information when converting to a PROJ string",
-    )
     create_decadal_averages(args.input_dir, args.output_dir, args.dry_run)
